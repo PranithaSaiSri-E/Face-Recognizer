@@ -1,27 +1,26 @@
-import numpy as np
+import os
 import cv2
+import numpy as np
+from PIL import Image
 
-detector= cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-cap = cv2.VideoCapture(0)
-roc=cv2.face.LBPHFaceRecognizer_create()
-roc.read("recognizer/trainingdata.yml")
-id=0;
-# font for the text written on image
-font = cv2.FONT_HERSHEY_SIMPLEX
+recognizer=cv2.face.LBPHFaceRecognizer_create()
+path='dataset'
 
-#fontColor =(255, 255, 255)
-
-while(True):
-    ret, img =  cap.read()
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = detector.detectMultiScale(gray, 1.3, 5)
-    for (x,y,w,h) in faces:
-        cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
-        id,conf=roc.predict(gray[y:y+h,x:x+w])
-        #cv2.putText(img,str,(x,y-10),font,0.55,(0,255,0),1)
-        cv2.putText(img,str(id),(x,y-20),font,0.55,(0,0,255),2)
-        #cv2.putText(img)
-    cv2.imshow('frame',img)
-    cv2.waitKey(10)
-cap.release()
-cv2.destroyAllWindows()                       
+def getImagesWithID(path):
+    imagePaths=[os.path.join(path,f)for f in os.listdir(path)]
+    faces=[]
+    IDs=[]
+    for imagePath in imagePaths:
+        faceImg=Image.open(imagePath).convert('L');
+        faceNp=np.array(faceImg,'uint8')
+        ID=int(imagePath.split(".")[0].split("\\")[1])
+        faces.append(faceNp)
+        print(imagePath.split(".")[0].split("\\")[1])
+        IDs.append(ID)
+        cv2.imshow("training",faceNp)
+        cv2.waitKey(20)
+    return IDs,faces
+IDs,faces=getImagesWithID(path)
+recognizer.train(faces,np.array(IDs))
+recognizer.save('recognizer/trainingdata.yml');
+cv2.destroyAllWindows()
