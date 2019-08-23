@@ -6,10 +6,7 @@ cap = cv2.VideoCapture(0)
 roc=cv2.face.LBPHFaceRecognizer_create()
 roc.read("recognizer/trainingdata.yml")
 id=0;
-# font for the text written on image
 font = cv2.FONT_HERSHEY_SIMPLEX
-
-#fontColor =(255, 255, 255)
 d={"0":"Narendra modi","1":"pranitha","2":"trump"}
 while(True):
     ret, img =  cap.read()
